@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1400">
+  <rect x="170" y="420" width="260" height="900" rx="40" fill="#4a505c"/>
+  <path d="M170 420 L 240 540 L 300 600 L 360 540 L 430 420 Z" fill="#e6e6e2"/>
+  <path d="M285 540 L 315 540 L 322 560 L 312 720 L 288 720 L 278 560 Z" fill="#7a3a3a"/>
+  <ellipse cx="300" cy="320" rx="170" ry="190" fill="#d8b48a"/>
+  <path d="M155 270 Q300 130 445 270 Q445 210 300 180 Q155 210 155 270 Z" fill="#1a1410"/>
+  <path d="M215 280 Q245 270 275 290" stroke="#1a120e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M325 290 Q355 270 385 280" stroke="#1a120e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M225 330 Q245 322 265 330" stroke="#1a120e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M335 330 Q355 322 375 330" stroke="#1a120e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <line x1="280" y1="402" x2="320" y2="402" stroke="#1a120e" stroke-width="5" stroke-linecap="round"/>
+  <text x="300" y="1370" font-size="34" fill="#444" text-anchor="middle" font-family="sans-serif" opacity="0.7">jason · thinking</text>
+</svg>

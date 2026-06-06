@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1400">
+  <rect x="170" y="420" width="260" height="900" rx="40" fill="#d4c5dc"/>
+  <rect x="135" y="440" width="35" height="440" fill="#5a3a4a"/>
+  <rect x="430" y="440" width="35" height="440" fill="#5a3a4a"/>
+  <ellipse cx="300" cy="320" rx="170" ry="190" fill="#f5d4b0"/>
+  <path d="M130 320 Q300 60 470 320 Q470 200 300 140 Q130 200 130 320Z" fill="#5a3a4a"/>
+  <path d="M215 265 Q245 250 275 265" stroke="#2a1f24" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M325 265 Q355 250 385 265" stroke="#2a1f24" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <circle cx="245" cy="325" r="18" fill="#2a1f24"/>
+  <circle cx="355" cy="325" r="18" fill="#2a1f24"/>
+  <ellipse cx="300" cy="410" rx="14" ry="18" fill="#2a1f24"/>
+  <text x="300" y="1370" font-size="34" fill="#444" text-anchor="middle" font-family="sans-serif" opacity="0.7">xiaowen · surprised</text>
+</svg>

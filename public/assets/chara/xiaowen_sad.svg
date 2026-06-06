@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1400">
+  <rect x="170" y="420" width="260" height="900" rx="40" fill="#c8b9d0"/>
+  <rect x="135" y="440" width="35" height="440" fill="#4e3240"/>
+  <rect x="430" y="440" width="35" height="440" fill="#4e3240"/>
+  <ellipse cx="300" cy="320" rx="170" ry="190" fill="#e8c5a4"/>
+  <path d="M130 320 Q300 60 470 320 Q470 200 300 140 Q130 200 130 320Z" fill="#4e3240"/>
+  <path d="M215 275 Q245 290 275 285" stroke="#2a1f24" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M325 285 Q355 290 385 275" stroke="#2a1f24" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M225 325 Q245 340 265 325" stroke="#2a1f24" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M335 325 Q355 340 375 325" stroke="#2a1f24" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M275 410 Q300 400 325 410" stroke="#2a1f24" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <text x="300" y="1370" font-size="34" fill="#444" text-anchor="middle" font-family="sans-serif" opacity="0.7">xiaowen · sad</text>
+</svg>

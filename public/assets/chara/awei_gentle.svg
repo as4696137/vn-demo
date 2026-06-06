@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1400">
+  <rect x="170" y="420" width="260" height="900" rx="40" fill="#88a0bd"/>
+  <ellipse cx="300" cy="320" rx="170" ry="190" fill="#eaccA4"/>
+  <path d="M150 280 Q300 100 450 280 Q450 200 300 160 Q150 200 150 280 Z" fill="#2a1f1c"/>
+  <path d="M225 325 Q245 312 265 325" stroke="#1a120e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M335 325 Q355 312 375 325" stroke="#1a120e" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M275 398 Q300 412 325 398" stroke="#1a120e" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <text x="300" y="1370" font-size="34" fill="#444" text-anchor="middle" font-family="sans-serif" opacity="0.7">awei · gentle</text>
+</svg>
