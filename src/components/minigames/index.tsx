@@ -3,7 +3,7 @@ import type { ChoiceOpt, MinigameRequest } from '@/engine/types'
 import { LetterMinigame } from './LetterMinigame'
 import type { MinigameComponent } from './types'
 
-const REGISTRY: Record<string, MinigameComponent> = {
+export const MINIGAME_REGISTRY: Record<string, MinigameComponent> = {
   letter: LetterMinigame,
 }
 
@@ -14,7 +14,7 @@ type Props = {
 }
 
 export function MinigameLayer({ minigame, choices, onChoose }: Props) {
-  const Component = REGISTRY[minigame.id]
+  const Component = MINIGAME_REGISTRY[minigame.id]
 
   // 未知 id 自動退回普通選項——不會卡住玩家。
   if (!Component) {

@@ -3,12 +3,11 @@ import { InkRunner } from '@/engine/InkRunner'
 import type {
   CharaState,
   ChoiceOpt,
-  Directive,
   EndingId,
   MinigameRequest,
   SceneName,
-  Side,
 } from '@/engine/types'
+import { applyChara } from '@/engine/applyChara'
 import { playBgm, playSe } from '@/engine/audio'
 import inkStoryJson from '@/story/new-main.ink'
 
@@ -28,23 +27,6 @@ type GameState = {
   choose: (index: number) => void
   confirmEnd: () => void
   toMenu: () => void
-}
-
-function applyChara(
-  list: CharaState[],
-  d: Extract<Directive, { kind: 'chara' }>,
-): CharaState[] {
-  if (d.exit) {
-    return list.filter((c) => c.id !== d.id)
-  }
-  const existing = list.find((c) => c.id === d.id)
-  const next: CharaState = {
-    id: d.id,
-    pose: d.pose ?? existing?.pose ?? 'neutral',
-    pos: (d.pos ?? existing?.pos ?? 'center') as Side,
-  }
-  if (existing) return list.map((c) => (c.id === d.id ? next : c))
-  return [...list, next]
 }
 
 let runner: InkRunner | null = null

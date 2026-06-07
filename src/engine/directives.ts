@@ -28,7 +28,9 @@ export function parseTag(raw: string): Directive | null {
     case 'chara': {
       const parts = rest.split(/\s+/).filter(Boolean)
       const id = parts[0]
-      if (!id) return null
+      // Reject if the first token looks like a prop — otherwise a directive
+      // like `chara: pose=happy` (missing id) silently treats the prop as id.
+      if (!id || id === 'exit' || id.includes('=')) return null
       let pose: string | undefined
       let pos: Side | undefined
       let exit = false
