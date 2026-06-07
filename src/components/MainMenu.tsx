@@ -4,7 +4,7 @@ export function MainMenu({ onStart }: { onStart: () => void }) {
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-[#fbf5eb] via-[#f4e3c8] to-[#e4c8a2]">
       <motion.img
-        src="/assets/logo.webp"
+        src={`${import.meta.env.BASE_URL}assets/logo.webp`}
         alt="燃燒殆盡之前 — Before Burning Out"
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}

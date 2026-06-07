@@ -5,6 +5,8 @@ import tailwindcss from '@tailwindcss/vite'
 import { inkPlugin } from './vite-plugin-ink'
 
 export default defineConfig({
+  // GitHub Pages serves the site at /vn-demo/. Dev server still uses '/'.
+  base: process.env.NODE_ENV === 'production' ? '/vn-demo/' : '/',
   plugins: [react(), tailwindcss(), inkPlugin()],
   resolve: {
     alias: {
