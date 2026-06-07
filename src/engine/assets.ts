@@ -77,3 +77,23 @@ export function getBgSrc(id: string | null): string | null {
 export function getCharaSrc(id: string, pose: string): string | null {
   return CHARA_REGISTRY[id]?.[pose] ?? null;
 }
+
+/**
+ * Warm the HTTP cache with every BG (and optionally every chara pose) so that
+ * scene switches don't pay a fetch cost. Skips the BG currently on screen.
+ * Browsers handle these `new Image()` requests at low priority — calling this
+ * after the first scene paints means the immediate need isn't crowded out.
+ */
+export function prefetchAssets(currentBgId: string | null): void {
+  for (const [id, src] of Object.entries(BG_REGISTRY)) {
+    if (id === currentBgId) continue;
+    const img = new Image();
+    img.src = src;
+  }
+  for (const poses of Object.values(CHARA_REGISTRY)) {
+    for (const src of Object.values(poses)) {
+      const img = new Image();
+      img.src = src;
+    }
+  }
+}

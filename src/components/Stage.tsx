@@ -1,12 +1,16 @@
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '@/store/gameStore'
 import { useTypewriter } from '@/engine/useTypewriter'
+import { prefetchAssets } from '@/engine/assets'
 import { Background } from './Background'
 import { CharaLayer } from './Character'
 import { DialogueBox } from './DialogueBox'
 import { ChoiceList } from './ChoiceList'
-import { MinigameLayer } from './minigames'
+
+const MinigameLayer = lazy(() =>
+  import('./minigames').then((m) => ({ default: m.MinigameLayer })),
+)
 
 export function Stage() {
   const {
@@ -51,6 +55,13 @@ export function Stage() {
     // re-bind when state that onTap depends on changes
   }, [done, choices, text]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Warm the cache once on first mount, after the initial scene has painted.
+  useEffect(() => {
+    const t = window.setTimeout(() => prefetchAssets(bg), 300)
+    return () => window.clearTimeout(t)
+    // intentionally fire once
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div
       className="absolute inset-0 cursor-pointer"
@@ -62,7 +73,9 @@ export function Stage() {
       <DialogueBox speaker={speaker} text={text} shown={shown} done={done} />
       {choices &&
         (minigame ? (
-          <MinigameLayer minigame={minigame} choices={choices} onChoose={choose} />
+          <Suspense fallback={null}>
+            <MinigameLayer minigame={minigame} choices={choices} onChoose={choose} />
+          </Suspense>
         ) : (
           <ChoiceList choices={choices} onChoose={choose} />
         ))}

@@ -1,4 +1,4 @@
-import { Compiler } from 'inkjs/full'
+import { Story } from 'inkjs'
 import { parseTags } from './directives'
 import type { ChoiceOpt, Directive } from './types'
 
@@ -20,9 +20,8 @@ type InkStory = {
 export class InkRunner {
   private story: InkStory
 
-  constructor(source: string) {
-    const compiled = new Compiler(source).Compile()
-    this.story = compiled as unknown as InkStory
+  constructor(compiledJson: unknown) {
+    this.story = new Story(compiledJson as never) as unknown as InkStory
   }
 
   step(): StepResult {

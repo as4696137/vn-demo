@@ -10,7 +10,7 @@ import type {
   Side,
 } from '@/engine/types'
 import { playBgm, playSe } from '@/engine/audio'
-import inkSource from '@/story/new-main.ink?raw'
+import inkStoryJson from '@/story/new-main.ink'
 
 type GameState = {
   scene: SceneName
@@ -65,7 +65,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   ...initial,
 
   start: () => {
-    runner = new InkRunner(inkSource)
+    runner = new InkRunner(inkStoryJson)
     set({ ...initial, scene: 'play' })
     get().advance()
   },

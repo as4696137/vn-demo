@@ -1,8 +1,12 @@
+import { lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { useGameStore } from '@/store/gameStore'
 import { MainMenu } from '@/components/MainMenu'
 import { Stage } from '@/components/Stage'
-import { EndingScreen } from '@/components/EndingScreen'
+
+const EndingScreen = lazy(() =>
+  import('@/components/EndingScreen').then((m) => ({ default: m.EndingScreen })),
+)
 
 export default function App() {
   const scene = useGameStore((s) => s.scene)
@@ -23,7 +27,11 @@ export default function App() {
           onAnimationComplete={confirmEnd}
         />
       )}
-      {scene === 'end' && endingId && <EndingScreen endingId={endingId} />}
+      {scene === 'end' && endingId && (
+        <Suspense fallback={<div className="absolute inset-0 bg-black" />}>
+          <EndingScreen endingId={endingId} />
+        </Suspense>
+      )}
     </div>
   )
 }
