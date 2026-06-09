@@ -51,6 +51,56 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Verify the live site after deploy. Unit tests already ran pre-build;
+  # this catches deploy-level issues those can't see (base URL wrong, asset
+  # missing from artifact, CDN serving stale HTML, etc).
+  smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe deployed URL
+        env:
+          URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          echo "Probing $URL"
+
+          # Give the CDN a moment to propagate.
+          sleep 5
+
+          STATUS=$(curl -sS -o /tmp/page.html -w "%{http_code}" "$URL")
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Deployed URL returned HTTP $STATUS"
+            exit 1
+          fi
+
+          # The bundle should be referenced under the sub-path. If this fails,
+          # the BASE_URL config likely regressed and the page will be blank.
+          if ! grep -q "/vn-demo/assets/" /tmp/page.html; then
+            echo "::error::index.html does not reference /vn-demo/assets/ — base URL broken"
+            head -50 /tmp/page.html
+            exit 1
+          fi
+
+          # Pick the main JS bundle out of the HTML and fetch it to make sure
+          # the artifact actually contains it (not just a 404 page in disguise).
+          BUNDLE=$(grep -oE '/vn-demo/assets/index-[A-Za-z0-9_-]+\.js' /tmp/page.html | head -1)
+          if [ -z "$BUNDLE" ]; then
+            echo "::error::Could not find main JS bundle reference in index.html"
+            exit 1
+          fi
+          ORIGIN=$(echo "$URL" | sed -E 's|^(https?://[^/]+).*|\1|')
+          BUNDLE_URL="${ORIGIN}${BUNDLE}"
+          BUNDLE_STATUS=$(curl -sS -o /dev/null -w "%{http_code}" "$BUNDLE_URL")
+          if [ "$BUNDLE_STATUS" != "200" ]; then
+            echo "::error::Main JS bundle ($BUNDLE_URL) returned HTTP $BUNDLE_STATUS"
+            exit 1
+          fi
+
+          echo "Smoke test passed: HTML loads, base URL correct, bundle reachable."

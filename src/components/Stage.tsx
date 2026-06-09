@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useGameStore } from '@/store/gameStore'
 import { useTypewriter } from '@/engine/useTypewriter'
 import { prefetchAssets } from '@/engine/assets'
+import { prefetchSes } from '@/engine/audio'
 import { Background } from './Background'
 import { CharaLayer } from './Character'
 import { DialogueBox } from './DialogueBox'
@@ -57,7 +58,10 @@ export function Stage() {
 
   // Warm the cache once on first mount, after the initial scene has painted.
   useEffect(() => {
-    const t = window.setTimeout(() => prefetchAssets(bg), 300)
+    const t = window.setTimeout(() => {
+      prefetchAssets(bg)
+      prefetchSes()
+    }, 300)
     return () => window.clearTimeout(t)
     // intentionally fire once
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

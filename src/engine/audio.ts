@@ -28,8 +28,25 @@ export function playBgm(id: string | null) {
   currentBgm = h
 }
 
-export function playSe(id: string) {
+// Cache one Howl per SE id. First playSe(id) does the fetch + decode; the
+// instance is then reused, so subsequent plays are instant. `prefetchSes()`
+// warms the whole set up-front so the *first* play is also instant.
+const seCache = new Map<string, Howl>()
+
+function getSe(id: string): Howl | null {
+  const cached = seCache.get(id)
+  if (cached) return cached
   const src = SE_REGISTRY[id]
-  if (!src) return
-  new Howl({ src: [src], volume: 0.8 }).play()
+  if (!src) return null
+  const h = new Howl({ src: [src], volume: 0.8, preload: true })
+  seCache.set(id, h)
+  return h
+}
+
+export function playSe(id: string) {
+  getSe(id)?.play()
+}
+
+export function prefetchSes() {
+  for (const id of Object.keys(SE_REGISTRY)) getSe(id)
 }

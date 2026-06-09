@@ -1,0 +1,26 @@
+name: Test
+
+on:
+  pull_request:
+  # Also run on any push to a non-main branch, so direct pushes to feature
+  # branches get the same gate as PRs.
+  push:
+    branches-ignore: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      # Also build — catches TypeScript errors that vitest alone misses.
+      - run: npm run build
