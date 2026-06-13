@@ -8,6 +8,20 @@
 
 ---
 
+## 目錄
+
+- [關於這個專案](#關於這個專案)
+- [部署網址](#部署網址)
+- [技術棧](#技術棧)
+- [快速開始](#快速開始)
+- [架構](#架構)
+- [與其他人協作的規劃](#與其他人協作的規劃)
+- [Excel 劇本工作流程](#excel-劇本工作流程)
+- [擴充](#擴充)
+- [之後可延伸的方向](#之後可延伸的方向)
+- [資源與效能管線](#資源與效能管線)
+- [測試](#測試)
+
 ## 關於這個專案
 
 故事跟著一位走到 burnout 邊緣的設計師,玩家在五幕劇情中做出選擇,
@@ -19,6 +33,10 @@
 整個專案的架構刻意把**劇情內容**和**引擎**切得很乾淨。
 寫劇本的人改 `.ink` 就能加場景、換 pose、播音效,不碰 React;
 工程師可以整層 UI 重寫,劇本一行不動。
+
+## 部署網址
+
+正式部署網址:<https://as4696137.github.io/vn-demo/>
 
 ## 技術棧
 
@@ -142,6 +160,79 @@ React component,完全不知道 inkjs 的存在。
 拖曳手勢最終還是呼叫 `store.choose(index)`,index 跟按鈕點下去一樣。
 **從 Ink 的角度看,mini-game 不存在。**
 
+## 與其他人協作的規劃
+
+專案刻意拆成不同責任範圍,讓多人可以平行工作,減少互相改到同一批檔案:
+
+- **劇本撰寫者**負責 `src/story/new-main.ink`:場景、對話、分支、
+  結局邏輯與劇本層級 tag。
+- **美術 / 音效協作者**負責 `public/assets/` 底下的素材,再和工程端協調,
+  把新的素材 ID 註冊到 `src/engine/assets.ts`。
+- **引擎協作者**負責 `src/engine/` 與相關測試,維持 tag 解析、素材驗證、
+  劇本推進邏輯都不依賴 React。
+- **UI 協作者**負責 `src/components/` 與 `src/store/gameStore.ts`,
+  包含畫面呈現、動畫、可及性與 mini-game 行為。
+
+建議協作流程:
+
+1. 劇本、素材、引擎、UI 的修改盡量拆成不同 pull request。
+2. 新增 tag、素材註冊規則或分支規則時,同步新增或更新測試。
+3. 合併前跑過 `npm test` 與 `npm run build`。
+4. 每個 mini-game 都在 component 檔案中註明 choice index 對應,
+   確保和 `.ink` 裡的選項順序一致。
+
+## Excel 劇本工作流程
+
+考量到企劃端不一定熟悉 Ink 語法,專案提供一組轉換器,讓企劃用 **Excel** 寫劇情,
+工程端用一個指令把它轉成引擎吃的 `.ink`,企劃不需要學 Ink。
+
+```
+content/story.xlsx  ──npm run story:build──▶  src/story/new-main.ink  ──▶  引擎
+   (企劃編輯)                                    (自動產生,勿手改)
+```
+
+採用這套流程後,`src/story/new-main.ink` 是**自動產生的 artifact**(檔頭也有標註),
+請只編輯 Excel,不要手改 `.ink`。詳細欄位說明見 [content/README.md](./content/README.md)
+與 Excel 裡的「說明」分頁。
+
+### 指令
+
+| 指令 | 作用 |
+| --- | --- |
+| `npm run story:build [in.xlsx] [out.ink]` | **Excel → .ink**。預設 `content/story.xlsx → src/story/new-main.ink`。 |
+| `npm run story:template [in.ink] [out.xlsx]` | **.ink → Excel**,把現有腳本反向產生成 Excel(用來產出範例 `story-template.xlsx`)。 |
+| `npm run story:verify [in.ink]` | 驗證來回轉換無損、可編譯、三結局可達。 |
+
+建議流程:企劃改 `content/story.xlsx` → `npm run story:build` → `npm test`
+(story 測試會擋下沒註冊的素材 ID)。
+
+### Excel 欄位(「劇本」分頁,一列 = 一個劇情節拍)
+
+| 欄 | 對應 Ink | 說明 |
+| --- | --- | --- |
+| 段落 ID (knot) | `=== knot ===` | 只填在每段第一列;限英數+底線,**不能有空格或減號** |
+| 背景 (bg) | `# bg:` | 素材 ID,留白沿用前一個 |
+| 音樂 (bgm) | `# bgm:` | ID 或 `none` / `stop` |
+| 音效 (se) | `# se:` | |
+| 角色立繪 (chara) | `# chara:` / `# clear` | `xiaowen pose=gentle pos=right`;退場 `xiaowen exit`;清空 `clear` |
+| 小遊戲 (minigame) | `# minigame:` | 把下一個選項點換成小遊戲 UI |
+| 說話者 (speaker) | `# speaker:` | 留白 = 旁白 |
+| 內容 (text) | 行文字 | 可用 `{變數名}` 插值,如 `{user_name}` |
+| 選項 (choice) | `* [...]` | 要分歧時,連續數列各填一個選項 |
+| 前往段落 (goto) | `-> target` | 跳段;`END` = 結束 |
+| 設定變數 (set) | `~ ...` | 如 `ending_id = "A"` |
+
+`變數` 分頁宣告變數與初始值;`設定` 分頁的 `start` 指定起始段落。
+
+### 注意事項
+
+- 轉換器靠**標題列括號內的關鍵字**(如 `(bg)`、`(knot)`)來認欄位,所以可以重排欄位,
+  但**不要改動或重複括號內的字**。例如把背景欄標題誤設成 `(knot)`,背景值就會被
+  當成段落名稱,導致 Ink 出現重複段落而編譯失敗。
+- 素材 ID(bg / chara / se / minigame)必須先註冊在 `src/engine/assets.ts` 與
+  `src/components/minigames/index.tsx`,否則 `npm test` 會 fail。
+- 這套管線使用 IR(中介結構)雙向共用,`story:verify` 會驗證來回無損,可安心改劇本。
+
 ## 擴充
 
 ### 新增一幕場景
@@ -221,6 +312,15 @@ Mini-game 是一個滿足 `MinigameProps` 合約的 React component:
 
 `* [...]` 在劇本中的順序必須對應 component 裡 `onChoose(index)` 的 index——
 把對應關係寫在 component 檔頭的註解裡,日後 review 時一眼就能對。
+
+## 之後可延伸的方向
+
+- 增加更多互動式 mini-game,但仍沿用 Ink choice 系統。
+- 加入 save / load slot,讓玩家不用重玩整段就能回看不同分支。
+- 玩家達成至少一個結局後,開放場景回顧、結局收藏或路線圖。
+- 強化可及性:鍵盤操作 mini-game、減少動態效果選項、更完整的音量與字幕設定。
+- 擴充多語系架構,讓同一套引擎可以切換繁中、英文與未來翻譯。
+- 增加 GitHub Pages 的 CI 部署檢查,避免劇本斷線或素材缺漏時仍被發布。
 
 ## 資源與效能管線
 

@@ -9,6 +9,20 @@ mini-games embedded in the choice flow.
 
 ---
 
+## Table of contents
+
+- [About](#about)
+- [Deployment](#deployment)
+- [Tech stack](#tech-stack)
+- [Quick start](#quick-start)
+- [Architecture](#architecture)
+- [Collaboration plan](#collaboration-plan)
+- [Excel authoring workflow](#excel-authoring-workflow)
+- [Extending](#extending)
+- [Future directions](#future-directions)
+- [Asset & performance pipeline](#asset--performance-pipeline)
+- [Testing](#testing)
+
 ## About
 
 The story follows a designer at the edge of burnout. Across five acts the
@@ -22,6 +36,10 @@ The project is structured to keep the **narrative content** and the **engine**
 sharply separated. A writer can add a scene, swap a character pose, or trigger
 a sound effect by editing the `.ink` script — no React, no TypeScript. An
 engineer can rebuild the entire UI without touching a line of the story.
+
+## Deployment
+
+Live site: <https://as4696137.github.io/vn-demo/>
 
 ## Tech stack
 
@@ -147,6 +165,87 @@ branching — it just swaps the button UI for a draggable paper. The drag
 gesture eventually calls `store.choose(index)` with the same index a button
 click would have. From Ink's perspective, mini-games don't exist.
 
+## Collaboration plan
+
+The project is split so different contributors can work in parallel without
+constantly touching the same files:
+
+- **Writers** own `src/story/new-main.ink`: scenes, dialogue, branching,
+  ending logic, and story-level tags.
+- **Artists / audio contributors** own assets under `public/assets/`, then
+  coordinate with engineers to register new IDs in `src/engine/assets.ts`.
+- **Engine contributors** own `src/engine/` and related tests, keeping parsing,
+  asset validation, and story stepping independent from React.
+- **UI contributors** own `src/components/` and `src/store/gameStore.ts`,
+  especially presentation, animation, accessibility, and mini-game behavior.
+
+Recommended workflow:
+
+1. Keep story changes, asset changes, engine changes, and UI changes in
+   separate pull requests when possible.
+2. Add or update tests whenever a new tag, asset registry rule, or branching
+   rule is introduced.
+3. Run `npm test` and `npm run build` before merging.
+4. Document each mini-game's choice-index mapping in the component file so it
+   stays aligned with the `.ink` choice order.
+
+## Excel authoring workflow
+
+Writers who don't know Ink can author the story in **Excel**; engineers run one
+command to convert it into the `.ink` the engine consumes.
+
+```
+content/story.xlsx  ──npm run story:build──▶  src/story/new-main.ink  ──▶  engine
+   (writers edit)                                (generated, do not hand-edit)
+```
+
+Once you adopt this workflow, `src/story/new-main.ink` is a **generated
+artifact** (its header says so) — edit the Excel, never the `.ink`. Full column
+docs live in [content/README.md](./content/README.md) and the workbook's "說明"
+(readme) sheet.
+
+### Commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm run story:build [in.xlsx] [out.ink]` | **Excel → .ink**. Defaults to `content/story.xlsx → src/story/new-main.ink`. |
+| `npm run story:template [in.ink] [out.xlsx]` | **.ink → Excel**, reverse-generate a workbook (used to produce the `story-template.xlsx` sample). |
+| `npm run story:verify [in.ink]` | Verify the round-trip is lossless, compiles, and reaches all three endings. |
+
+Suggested loop: edit `content/story.xlsx` → `npm run story:build` → `npm test`
+(the story test blocks any unregistered asset IDs).
+
+### Story sheet columns (one beat per row)
+
+| Column | Maps to Ink | Notes |
+| --- | --- | --- |
+| 段落 ID (knot) | `=== knot ===` | First row of each segment only; alphanumeric + underscore, **no spaces or hyphens** |
+| 背景 (bg) | `# bg:` | Asset ID; blank reuses the previous one |
+| 音樂 (bgm) | `# bgm:` | ID, or `none` / `stop` |
+| 音效 (se) | `# se:` | |
+| 角色立繪 (chara) | `# chara:` / `# clear` | `xiaowen pose=gentle pos=right`; exit with `xiaowen exit`; clear all with `clear` |
+| 小遊戲 (minigame) | `# minigame:` | Turns the next choice point into a mini-game UI |
+| 說話者 (speaker) | `# speaker:` | Blank = narration |
+| 內容 (text) | line text | Supports `{var}` interpolation, e.g. `{user_name}` |
+| 選項 (choice) | `* [...]` | For branches, put one option per row across consecutive rows |
+| 前往段落 (goto) | `-> target` | Jump to a segment; `END` ends the game |
+| 設定變數 (set) | `~ ...` | e.g. `ending_id = "A"` |
+
+The `變數` sheet declares variables/initials; the `設定` sheet's `start` sets the
+opening segment.
+
+### Gotchas
+
+- The converter matches columns by the **keyword in parentheses** in each header
+  (`(bg)`, `(knot)`, …), so you may reorder columns — but don't change or
+  duplicate the parenthesised key. (e.g. mislabelling the bg header as `(knot)`
+  makes background values parse as segment names and the Ink fails to compile
+  with duplicate-knot errors.)
+- Asset IDs must be registered in `src/engine/assets.ts` and the minigame
+  registry, or `npm test` fails.
+- The pipeline shares one IR in both directions; `story:verify` checks the
+  round-trip is lossless.
+
 ## Extending
 
 ### Add a scene
@@ -228,6 +327,19 @@ commits.
 The order of `* [...]` in the script must match the `onChoose(index)` calls
 in the component — document the mapping in a comment at the top of the
 component file so future-you can verify it at a glance.
+
+## Future directions
+
+- Add more interactive mini-games that still reuse the Ink choice system.
+- Add save / load slots so players can revisit branches without restarting.
+- Add a scene gallery, ending gallery, or route map after the player reaches
+  at least one ending.
+- Improve accessibility with keyboard-first mini-game controls, reduced-motion
+  options, and richer audio / subtitle settings.
+- Expand localization support so the same engine can switch between Traditional
+  Chinese, English, and future translations.
+- Add CI deployment checks for GitHub Pages so broken story content or missing
+  assets cannot ship.
 
 ## Asset & performance pipeline
 
